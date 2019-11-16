@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!-- Create tables -->
+    <changeSet id="createStationsTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="stations"/>
+            </not>
+        </preConditions>
+        <createTable tableName="stations">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createWagonsTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="wagons"/>
+            </not>
+        </preConditions>
+        <createTable tableName="wagons">
+            <column name="id" type="CHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="total_seats_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="occupied_seat_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createRoutesTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="routes"/>
+            </not>
+        </preConditions>
+        <createTable tableName="routes">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="origin_station_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_routes_origin_station_id"
+                             referencedTableName="stations" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="departure_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="destination_station_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_routes_destination_station_id"
+                             referencedTableName="stations" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="arrival_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createTrainsTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="trains"/>
+            </not>
+        </preConditions>
+        <createTable tableName="trains">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createTrainWagonsTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="train_wagons"/>
+            </not>
+        </preConditions>
+        <createTable tableName="train_wagons">
+            <column name="train_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_train_wagons_train_id"
+                             referencedTableName="trains" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="wagon_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_train_wagons_wagon_id"
+                             referencedTableName="wagons" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createCruisesTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="cruises"/>
+            </not>
+        </preConditions>
+        <createTable tableName="cruises">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="route_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_cruises_route_id"
+                             referencedTableName="routes" referencedColumnNames="id"  deleteCascade="true"/>
+            </column>
+            <column name="train_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_cruises_train_id"
+                             referencedTableName="trains" referencedColumnNames="id"  deleteCascade="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createUsersTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birthday" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="createTicketsTable" author="Yaroslav Minakov" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tickets"/>
+            </not>
+        </preConditions>
+        <createTable tableName="tickets">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_tickets_user_id"
+                             referencedTableName="users" referencedColumnNames="id"  deleteCascade="true"/>
+            </column>
+            <column name="cruise_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="FK_tickets_cruise_id"
+                             referencedTableName="cruises" referencedColumnNames="id"  deleteCascade="true"/>
+            </column>
+            <column name="seat_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="return_date" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!--Insert data-->
+
+    <changeSet id="updateUsersTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="users">
+            <column name="id" value="7d770015-c6d4-4da5-91e8-ecb939bbb1e7"/>
+            <column name="first_name" value="Kobe"/>
+            <column name="last_name" value="Sanchez"/>
+            <column name="birthday" value="1980-04-22"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="cf120f71-f0a9-486e-b11c-dbe70241e2bf"/>
+            <column name="first_name" value="Leonardo"/>
+            <column name="last_name" value="Caldwell"/>
+            <column name="birthday" value="1954-11-01"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="213b52e3-ce1c-46e5-b5c7-f8dc17576f05"/>
+            <column name="first_name" value="Jaqueline"/>
+            <column name="last_name" value="Gonzales"/>
+            <column name="birthday" value="1989-01-11"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="e5d44cbc-28aa-403b-908d-ba2d6d041fe9"/>
+            <column name="first_name" value="Kameron"/>
+            <column name="last_name" value="Mosley"/>
+            <column name="birthday" value="1976-07-01"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" value="52147e21-56cf-4ed7-b9bf-70371981225f"/>
+            <column name="first_name" value="Donna"/>
+            <column name="last_name" value="Mejia"/>
+            <column name="birthday" value="1990-11-11"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateStationsTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="stations">
+            <column name="id" value="1836d328-6605-461f-b661-803d30b12515"/>
+            <column name="name" value="Moscow"/>
+        </insert>
+        <insert tableName="stations">
+            <column name="id" value="fcf2ad0f-4eed-44d5-b813-158ad14dfb97"/>
+            <column name="name" value="Saint Petersburg"/>
+        </insert>
+        <insert tableName="stations">
+            <column name="id" value="c69230e4-3801-48bc-a9eb-37bd361cab8b"/>
+            <column name="name" value="Nizhny Novgorod"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateWagonsTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="wagons">
+            <column name="id" value="07b8d4e5-cf50-47d7-b992-212f30c3235b"/>
+            <column name="total_seats_number" value="5"/>
+            <column name="occupied_seat_number" value="0"/>
+            <column name="type" value="ECONOMY"/>
+        </insert>
+        <insert tableName="wagons">
+            <column name="id" value="2d6f24ce-e5f0-4371-ad89-edca9bbaee8c"/>
+            <column name="total_seats_number" value="5"/>
+            <column name="occupied_seat_number" value="0"/>
+            <column name="type" value="BUSINESS"/>
+        </insert>
+        <insert tableName="wagons">
+            <column name="id" value="73e4031b-a235-448d-87b3-00fde83a58e0"/>
+            <column name="total_seats_number" value="5"/>
+            <column name="occupied_seat_number" value="0"/>
+            <column name="type" value="PREMIUM"/>
+        </insert>
+        <insert tableName="wagons">
+            <column name="id" value="3a6c78da-cb9d-4135-a7b2-a3850820deca"/>
+            <column name="total_seats_number" value="5"/>
+            <column name="occupied_seat_number" value="0"/>
+            <column name="type" value="ECONOMY"/>
+        </insert>
+        <insert tableName="wagons">
+            <column name="id" value="37182c3a-be20-48d6-854f-2833c323ee49"/>
+            <column name="total_seats_number" value="5"/>
+            <column name="occupied_seat_number" value="0"/>
+            <column name="type" value="BUSINESS"/>
+        </insert>
+        <insert tableName="wagons">
+            <column name="id" value="17656e82-e115-450b-af65-99d259c94ec8"/>
+            <column name="total_seats_number" value="5"/>
+            <column name="occupied_seat_number" value="0"/>
+            <column name="type" value="PREMIUM"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateRoutesTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="routes">
+            <column name="id" value="006942cc-f677-4f10-a1af-63614d4778fc"/>
+            <column name="origin_station_id" value="1836d328-6605-461f-b661-803d30b12515"/>
+            <column name="departure_date" value="2019-12-18T16:05:00.000"/>
+            <column name="destination_station_id" value="fcf2ad0f-4eed-44d5-b813-158ad14dfb97"/>
+            <column name="arrival_date" value="2019-12-18T23:47:00.000"/>
+        </insert>
+        <insert tableName="routes">
+            <column name="id" value="39d8dcf3-2867-4e27-8b71-9c607d0950eb"/>
+            <column name="origin_station_id" value="1836d328-6605-461f-b661-803d30b12515"/>
+            <column name="departure_date" value="2020-01-19T01:12:00.000"/>
+            <column name="destination_station_id" value="c69230e4-3801-48bc-a9eb-37bd361cab8b"/>
+            <column name="arrival_date" value="2020-01-19T07:10:00.000"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateTrainsTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="trains">
+            <column name="id" value="8d8c5071-8b04-4c66-8146-290d25b5d1cb"/>
+        </insert>
+        <insert tableName="trains">
+            <column name="id" value="17a1aa2b-c0d7-4f46-a375-6972ed91008d"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateCruisesTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="cruises">
+            <column name="id" value="2b3986b3-5b45-46fe-bdbe-a2b7fe86958c"/>
+            <column name="route_id" value="006942cc-f677-4f10-a1af-63614d4778fc"/>
+            <column name="train_id" value="8d8c5071-8b04-4c66-8146-290d25b5d1cb"/>
+        </insert>
+        <insert tableName="cruises">
+            <column name="id" value="3021e1a4-c646-456b-9ca0-388e059a2115"/>
+            <column name="route_id" value="39d8dcf3-2867-4e27-8b71-9c607d0950eb"/>
+            <column name="train_id" value="17a1aa2b-c0d7-4f46-a375-6972ed91008d"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateTrainWagonsTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="train_wagons">
+            <column name="train_id" value="8d8c5071-8b04-4c66-8146-290d25b5d1cb"/>
+            <column name="wagon_id" value="07b8d4e5-cf50-47d7-b992-212f30c3235b"/>
+        </insert>
+        <insert tableName="train_wagons">
+            <column name="train_id" value="8d8c5071-8b04-4c66-8146-290d25b5d1cb"/>
+            <column name="wagon_id" value="2d6f24ce-e5f0-4371-ad89-edca9bbaee8c"/>
+        </insert>
+        <insert tableName="train_wagons">
+            <column name="train_id" value="8d8c5071-8b04-4c66-8146-290d25b5d1cb"/>
+            <column name="wagon_id" value="73e4031b-a235-448d-87b3-00fde83a58e0"/>
+        </insert>
+        <insert tableName="train_wagons">
+            <column name="train_id" value="17a1aa2b-c0d7-4f46-a375-6972ed91008d"/>
+            <column name="wagon_id" value="3a6c78da-cb9d-4135-a7b2-a3850820deca"/>
+        </insert>
+        <insert tableName="train_wagons">
+            <column name="train_id" value="17a1aa2b-c0d7-4f46-a375-6972ed91008d"/>
+            <column name="wagon_id" value="37182c3a-be20-48d6-854f-2833c323ee49"/>
+        </insert>
+        <insert tableName="train_wagons">
+            <column name="train_id" value="17a1aa2b-c0d7-4f46-a375-6972ed91008d"/>
+            <column name="wagon_id" value="17656e82-e115-450b-af65-99d259c94ec8"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="updateTicketsTable" author="Yaroslav Minakov" runOnChange="true">
+        <insert tableName="tickets">
+            <column name="id" value="3e5d2e4f-734e-4ba9-818d-1de46042fffb"/>
+            <column name="user_id" value="7d770015-c6d4-4da5-91e8-ecb939bbb1e7"/>
+            <column name="cruise_id" value="2b3986b3-5b45-46fe-bdbe-a2b7fe86958c"/>
+            <column name="seat_type" value="ECONOMY"/>
+            <column name="price" value="199"/>
+            <column name="order_date" value="2019-11-07T16:11:33.000"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+        <insert tableName="tickets">
+            <column name="id" value="45e83f9d-4e92-4bce-9ba5-e14493a220af"/>
+            <column name="user_id" value="cf120f71-f0a9-486e-b11c-dbe70241e2bf"/>
+            <column name="cruise_id" value="2b3986b3-5b45-46fe-bdbe-a2b7fe86958c"/>
+            <column name="seat_type" value="ECONOMY"/>
+            <column name="price" value="199"/>
+            <column name="order_date" value="2019-10-01T22:32:23.000"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+
+    </changeSet>
+
+
+
+</databaseChangeLog>
