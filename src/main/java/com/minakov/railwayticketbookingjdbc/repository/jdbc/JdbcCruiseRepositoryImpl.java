@@ -5,8 +5,7 @@ import com.minakov.railwayticketbookingjdbc.model.Route;
 import com.minakov.railwayticketbookingjdbc.model.Train;
 import com.minakov.railwayticketbookingjdbc.repository.CruiseRepository;
 import com.minakov.railwayticketbookingjdbc.repository.RouteRepository;
-import com.minakov.railwayticketbookingjdbc.repository.TrainRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,16 +14,14 @@ import java.util.List;
 public class JdbcCruiseRepositoryImpl implements CruiseRepository {
 
     private RouteRepository routeRepository;
-    private TrainRepository trainRepository;
 
     public JdbcCruiseRepositoryImpl() {
         this.routeRepository = new JdbcRouteRepositoryImpl();
-        this.trainRepository = new JdbcTrainRepositoryImpl();
     }
 
     @Override
     public List<Cruise> findAll() {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             List<Cruise> cruises = new ArrayList<>();
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM cruises");
@@ -32,7 +29,8 @@ public class JdbcCruiseRepositoryImpl implements CruiseRepository {
             while (resultSet.next()) {
                 cruise = new Cruise();
                 cruise.setId(resultSet.getString("id"));
-                Train train = trainRepository.findById(resultSet.getString("train_id"));
+                Train train = new Train();
+                train.setId(resultSet.getString("train_id"));
                 Route route = routeRepository.findById(resultSet.getString("route_id"));
                 cruise.setTrain(train);
                 cruise.setRoute(route);
@@ -52,14 +50,15 @@ public class JdbcCruiseRepositoryImpl implements CruiseRepository {
 
     @Override
     public Cruise findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM cruises WHERE id = ?");
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
             Cruise cruise = null;
             while (resultSet.next()) {
                 cruise = new Cruise();
-                Train train = trainRepository.findById(resultSet.getString("train_id"));
+                Train train = new Train();
+                train.setId(resultSet.getString("train_id"));
                 Route route = routeRepository.findById(resultSet.getString("route_id"));
                 cruise.setId(resultSet.getString("id"));
                 cruise.setTrain(train);
