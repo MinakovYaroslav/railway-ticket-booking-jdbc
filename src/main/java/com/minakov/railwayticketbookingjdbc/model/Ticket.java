@@ -1,7 +1,5 @@
 package com.minakov.railwayticketbookingjdbc.model;
 
-import org.hibernate.annotations.CreationTimestamp;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -25,7 +23,6 @@ public class Ticket extends AbstractIdentifiable {
     @Column(name = "price")
     private BigDecimal price;
 
-    @CreationTimestamp
     @Column(name = "order_date")
     private Timestamp orderDate;
 
