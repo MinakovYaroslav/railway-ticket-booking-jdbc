@@ -10,9 +10,6 @@ import java.sql.Date;
 import java.util.Map;
 import java.util.Random;
 
-import static com.minakov.railwayticketbookingjdbc.config.DateFormatConfig.dateFormat;
-import static com.minakov.railwayticketbookingjdbc.config.DateFormatConfig.userBirthdayFormat;
-
 public class TicketPurchaseView extends ViewTemplate {
 
     private CruiseController cruiseController;
@@ -38,16 +35,20 @@ public class TicketPurchaseView extends ViewTemplate {
         Date birthday;
         User user;
         Ticket ticket;
+        Route route;
+        Station origin;
+        Station destination;
 
         try {
-            for (Map.Entry<Integer, Cruise> entry : cruises.entrySet()) { //Show list of cruises
+            // Show list of cruises
+            for (Map.Entry<Integer, Cruise> entry : cruises.entrySet()) {
 
-                Route route = entry.getValue().getRoute();
-                Station origin = route.getOrigin();
-                Station destination = route.getDestination();
+                route = entry.getValue().getRoute();
+                origin = route.getOrigin();
+                destination = route.getDestination();
 
-                System.out.println("№" + entry.getKey() + " " + dateFormat.format(route.getDepartureDate()) + " " + origin.getName() +
-                        " - " + destination.getName() + " " + dateFormat.format(route.getArrivalDate()));
+                System.out.println("№" + entry.getKey() + " " + route.getDepartureDate() + " " + origin.getName() +
+                        " - " + destination.getName() + " " + route.getArrivalDate());
                 System.out.println("ECONOMY seat price: " + new Random().nextInt(100) + "$");
                 System.out.println("BUSINESS seat price: " + new Random().nextInt(300) + "$");
                 System.out.println("PREMIUM seat price: " + new Random().nextInt(500) + "$");
@@ -58,6 +59,9 @@ public class TicketPurchaseView extends ViewTemplate {
             line = Console.input();
             cruiseNumber = Integer.valueOf(line);
             cruise = cruises.get(cruiseNumber);
+            route = cruise.getRoute();
+            origin = route.getOrigin();
+            destination = route.getDestination();
 
             System.out.println("Enter ticket type: ");
             line = Console.input();
@@ -73,7 +77,7 @@ public class TicketPurchaseView extends ViewTemplate {
 
             System.out.println("Enter your birthday YYYY-MM-DD : ");
             line = Console.input();
-            birthday = new Date(userBirthdayFormat.parse(line).getTime());
+            birthday = Date.valueOf(line);
 
             user = userController.create(firstName, lastName, birthday);
             ticket = ticketController.create(user, cruise, wagonType);
@@ -83,11 +87,13 @@ public class TicketPurchaseView extends ViewTemplate {
             System.out.println("Ticket id: " + ticket.getId());
             System.out.println("First name: " + user.getFirstName());
             System.out.println("Last name: " + user.getLastName());
-            System.out.println(dateFormat.format(cruise.getRoute().getDepartureDate()) + " " + cruise.getRoute().getOrigin().getName() +
-                    " - " + cruise.getRoute().getOrigin().getName() + " " + dateFormat.format(cruise.getRoute().getArrivalDate()));
+            System.out.println(route.getDepartureDate() + " " +
+                    origin.getName() + " - " +
+                    destination.getName() + " " +
+                    route.getArrivalDate());
             System.out.println("Seat type: " + ticket.getSeatType());
             System.out.println("Price: " + ticket.getPrice() + "$");
-            System.out.println("Order date: " + dateFormat.format(ticket.getOrderDate()));
+            System.out.println("Order date: " + ticket.getOrderDate());
 
         } catch (Exception e) {
             e.printStackTrace();
