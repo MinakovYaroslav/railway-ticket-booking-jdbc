@@ -1,11 +1,19 @@
 package com.minakov.railwayticketbookingjdbc.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "wagons")
 public class Wagon extends AbstractIdentifiable {
 
+    @Column(name = "total_seats_number")
     private int totalSeatsNumber;
 
+    @Column(name = "occupied_seat_number")
     private int occupiedSeatNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private WagonType type;
 
     public int getTotalSeatsNumber() {

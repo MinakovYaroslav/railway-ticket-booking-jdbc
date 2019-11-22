@@ -1,22 +1,39 @@
 package com.minakov.railwayticketbookingjdbc.model;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+@Entity
+@Table(name = "tickets")
 public class Ticket extends AbstractIdentifiable {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cruise_id")
     private Cruise cruise;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_type")
     private WagonType seatType;
 
+    @Column(name = "price")
     private BigDecimal price;
 
+    @CreationTimestamp
+    @Column(name = "order_date")
     private Timestamp orderDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private TicketStatus status;
 
+    @Column(name = "return_date")
     private Timestamp returnDate;
 
     public User getUser() {

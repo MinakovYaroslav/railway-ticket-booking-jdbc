@@ -1,15 +1,24 @@
 package com.minakov.railwayticketbookingjdbc.model;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 
+@Entity
+@Table(name = "routes")
 public class Route extends AbstractIdentifiable {
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "origin_station_id")
     private Station origin;
 
+    @Column(name = "departure_date")
     private Timestamp departureDate;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "destination_station_id")
     private Station destination;
 
+    @Column(name = "arrival_date")
     private Timestamp arrivalDate;
 
     public Station getOrigin() {

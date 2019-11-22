@@ -1,9 +1,17 @@
 package com.minakov.railwayticketbookingjdbc.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "cruises")
 public class Cruise extends AbstractIdentifiable {
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "route_id")
     private Route route;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "train_id")
     private Train train;
 
     public Route getRoute() {
