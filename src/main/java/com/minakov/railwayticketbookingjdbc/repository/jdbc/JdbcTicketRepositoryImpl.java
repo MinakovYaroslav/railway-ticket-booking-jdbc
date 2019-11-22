@@ -1,7 +1,6 @@
 package com.minakov.railwayticketbookingjdbc.repository.jdbc;
 
 import com.minakov.railwayticketbookingjdbc.model.*;
-import com.minakov.railwayticketbookingjdbc.repository.CruiseRepository;
 import com.minakov.railwayticketbookingjdbc.repository.TicketRepository;
 import com.minakov.railwayticketbookingjdbc.repository.UserRepository;
 import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
@@ -17,11 +16,9 @@ import java.util.UUID;
 public class JdbcTicketRepositoryImpl implements TicketRepository {
 
     private UserRepository userRepository;
-    private CruiseRepository cruiseRepository;
 
     public JdbcTicketRepositoryImpl() {
         this.userRepository = new JdbcUserRepositoryImpl();
-        this.cruiseRepository = new JdbcCruiseRepositoryImpl();
     }
 
     @Override
@@ -44,7 +41,8 @@ public class JdbcTicketRepositoryImpl implements TicketRepository {
             while (resultSet.next()) {
                 ticket = new Ticket();
                 User user = userRepository.findById(resultSet.getString("user_id"));
-                Cruise cruise = cruiseRepository.findById(resultSet.getString("cruise_id"));
+                Cruise cruise = new Cruise();
+                cruise.setId(resultSet.getString("cruise_id"));
                 ticket.setId(resultSet.getString("id"));
                 ticket.setCruise(cruise);
                 ticket.setUser(user);
