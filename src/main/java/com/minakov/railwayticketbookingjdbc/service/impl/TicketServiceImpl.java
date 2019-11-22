@@ -1,9 +1,13 @@
 package com.minakov.railwayticketbookingjdbc.service.impl;
 
+import com.minakov.railwayticketbookingjdbc.config.DatabaseConfiguration;
 import com.minakov.railwayticketbookingjdbc.model.*;
 import com.minakov.railwayticketbookingjdbc.repository.TicketRepository;
+import com.minakov.railwayticketbookingjdbc.repository.hibernate.HibernateTicketRepositoryImpl;
 import com.minakov.railwayticketbookingjdbc.repository.jdbc.JdbcTicketRepositoryImpl;
+import com.minakov.railwayticketbookingjdbc.service.CruiseService;
 import com.minakov.railwayticketbookingjdbc.service.TicketService;
+import com.minakov.railwayticketbookingjdbc.service.TrainService;
 import com.minakov.railwayticketbookingjdbc.service.WagonService;
 
 import java.math.BigDecimal;
@@ -15,12 +19,15 @@ import java.util.Random;
 public class TicketServiceImpl implements TicketService {
 
     private TicketRepository ticketRepository;
-
+    private TrainService trainService;
     private WagonService wagonService;
+    private CruiseService cruiseService;
 
     public TicketServiceImpl() {
-        this.ticketRepository = new JdbcTicketRepositoryImpl();
+        this.ticketRepository = getRepository();
         this.wagonService = new WagonServiceImpl();
+        this.trainService = new TrainServiceImpl();
+        this.cruiseService = new CruiseServiceImpl();
     }
 
     @Override
@@ -41,21 +48,24 @@ public class TicketServiceImpl implements TicketService {
         Timestamp orderDate;
 
         WagonType seatType = ticket.getSeatType();
-        train = ticket.getCruise().getTrain();
-        wagon = train.getWagons().stream()
-                .filter(w -> w.getType().equals(seatType))
-                .findFirst()
-                .orElseThrow(() -> new Exception("Wagon with type " + seatType + " not found"));
 
-        if (wagon.getTotalSeatsNumber() - wagon.getOccupiedSeatNumber() <= 0) {
-            throw new Exception("No tickets available!");
-        }
+        // Search train
+        train = trainService.findById(ticket.getCruise().getTrain().getId());
+
+        // Search available seats
+        wagon = train.getWagons().stream()
+                .filter(w -> w.getType().equals(seatType) && (w.getTotalSeatsNumber() - w.getOccupiedSeatNumber()) > 0)
+                .findFirst()
+                .orElseThrow(() -> new Exception("No available seats!"));
 
         wagon.setOccupiedSeatNumber(wagon.getOccupiedSeatNumber() + 1);
         wagonService.update(wagon);
 
-        price = BigDecimal.valueOf(new Random().nextInt(500)); // Random price
-        orderDate = new Timestamp(Calendar.getInstance().getTime().getTime()); // Current date
+        // Random price
+        price = BigDecimal.valueOf(new Random().nextInt(500));
+
+        // Current date
+        orderDate = new Timestamp(Calendar.getInstance().getTime().getTime());
 
         ticket.setPrice(price);
         ticket.setOrderDate(orderDate);
@@ -66,17 +76,36 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Ticket update(Ticket ticket) throws Exception {
-        Cruise cruise = ticket.getCruise();
-        Train train = cruise.getTrain();
+
+        // Search cruise
+        Cruise cruise = cruiseService.findById(ticket.getCruise().getId());
+
+        // Search train
+        Train train = trainService.findById(cruise.getTrain().getId());
+
+        // Search wagon by ticket type
         Wagon wagon = train.getWagons().stream()
                 .filter(w -> w.getType().equals(ticket.getSeatType()))
                 .findFirst()
                 .orElseThrow(() -> new Exception("Wagon with type " + ticket.getSeatType() + " not found"));
+
         ticket.setStatus(TicketStatus.RETURNED);
         ticket.setReturnDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
         wagon.setOccupiedSeatNumber(wagon.getOccupiedSeatNumber() - 1);
+
         wagonService.update(wagon);
         ticketRepository.update(ticket);
+
         return ticket;
+    }
+
+    private TicketRepository getRepository() {
+        if (DatabaseConfiguration.PROPERTY.getType().equalsIgnoreCase(DatabaseAccessType.JDBC.get())) {
+            return new JdbcTicketRepositoryImpl();
+        } else if (DatabaseConfiguration.PROPERTY.getType().equalsIgnoreCase(DatabaseAccessType.HIBERNATE.get())) {
+            return new HibernateTicketRepositoryImpl();
+        } else {
+            throw new RuntimeException("Connection type is invalid!");
+        }
     }
 }
