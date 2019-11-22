@@ -2,7 +2,7 @@ package com.minakov.railwayticketbookingjdbc.repository.jdbc;
 
 import com.minakov.railwayticketbookingjdbc.model.Station;
 import com.minakov.railwayticketbookingjdbc.repository.StationRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,7 +24,7 @@ public class JdbcStationRepositoryImpl implements StationRepository {
 
     @Override
     public Station findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()){
+        try (Connection connection = JDBCUtil.getConnection()){
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM stations WHERE id = ?");
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();

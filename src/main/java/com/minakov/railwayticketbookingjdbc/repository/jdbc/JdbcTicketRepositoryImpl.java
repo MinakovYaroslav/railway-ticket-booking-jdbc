@@ -4,7 +4,7 @@ import com.minakov.railwayticketbookingjdbc.model.*;
 import com.minakov.railwayticketbookingjdbc.repository.CruiseRepository;
 import com.minakov.railwayticketbookingjdbc.repository.TicketRepository;
 import com.minakov.railwayticketbookingjdbc.repository.UserRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +36,7 @@ public class JdbcTicketRepositoryImpl implements TicketRepository {
 
     @Override
     public Ticket findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM tickets WHERE id = ?");
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -66,7 +66,7 @@ public class JdbcTicketRepositoryImpl implements TicketRepository {
 
         ticket.setId(UUID.randomUUID().toString());
 
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO tickets VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             statement.setString(1, ticket.getId());
             statement.setString(2, ticket.getUser().getId());
@@ -86,7 +86,7 @@ public class JdbcTicketRepositoryImpl implements TicketRepository {
 
     @Override
     public Ticket update(Ticket ticket) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE tickets SET status = ?, return_date = ? WHERE id = ?");
             statement.setString(1, ticket.getStatus().toString());
             statement.setTimestamp(2, ticket.getReturnDate(), Calendar.getInstance());

@@ -3,7 +3,7 @@ package com.minakov.railwayticketbookingjdbc.repository.jdbc;
 import com.minakov.railwayticketbookingjdbc.model.Wagon;
 import com.minakov.railwayticketbookingjdbc.model.WagonType;
 import com.minakov.railwayticketbookingjdbc.repository.WagonRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,7 +25,7 @@ public class JdbcWagonRepositoryImpl implements WagonRepository {
 
     @Override
     public Wagon findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM wagons WHERE id = ?");
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -51,7 +51,7 @@ public class JdbcWagonRepositoryImpl implements WagonRepository {
 
     @Override
     public Wagon update(Wagon wagon) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("UPDATE wagons SET total_seats_number = ?, occupied_seat_number = ? WHERE id = ?");
             statement.setInt(1, wagon.getTotalSeatsNumber());
             statement.setInt(2, wagon.getOccupiedSeatNumber());

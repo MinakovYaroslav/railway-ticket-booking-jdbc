@@ -4,7 +4,7 @@ import com.minakov.railwayticketbookingjdbc.model.Train;
 import com.minakov.railwayticketbookingjdbc.model.Wagon;
 import com.minakov.railwayticketbookingjdbc.repository.TrainRepository;
 import com.minakov.railwayticketbookingjdbc.repository.WagonRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +33,7 @@ public class JdbcTrainRepositoryImpl implements TrainRepository {
 
     @Override
     public Train findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement1 = connection.prepareStatement("SELECT * FROM trains WHERE id = ?");
             PreparedStatement statement2 = connection.prepareStatement("SELECT wagon_id FROM train_wagons WHERE train_id = ?");
             statement1.setString(1, id);

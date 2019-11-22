@@ -4,7 +4,7 @@ import com.minakov.railwayticketbookingjdbc.model.Route;
 import com.minakov.railwayticketbookingjdbc.model.Station;
 import com.minakov.railwayticketbookingjdbc.repository.RouteRepository;
 import com.minakov.railwayticketbookingjdbc.repository.StationRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,7 +32,7 @@ public class JdbcRouteRepositoryImpl implements RouteRepository {
 
     @Override
     public Route findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM routes WHERE id = ?");
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();

@@ -2,7 +2,7 @@ package com.minakov.railwayticketbookingjdbc.repository.jdbc;
 
 import com.minakov.railwayticketbookingjdbc.model.User;
 import com.minakov.railwayticketbookingjdbc.repository.UserRepository;
-import com.minakov.railwayticketbookingjdbc.util.DBConnectionUtil;
+import com.minakov.railwayticketbookingjdbc.util.JDBCUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +26,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public User findById(String id) {
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE id = ?");
             statement.setString(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -50,7 +50,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
         user.setId(UUID.randomUUID().toString());
 
-        try (Connection connection = DBConnectionUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO users VALUES (?, ?, ?, ?)");
             statement.setString(1, user.getId());
             statement.setString(2, user.getFirstName());
